@@ -12,7 +12,7 @@
 
 
     <groupId>com.funny.combo</groupId>
-    <artifactId>ai-demo</artifactId>
+    <artifactId>ai-call</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -93,6 +93,11 @@
             <artifactId>commons-collections4</artifactId>
             <version>4.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.0.1-jre</version>
+        </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -100,12 +105,7 @@
             <version>1.18.14</version>
         </dependency>
 
-        <!-- for token -->
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>aliyun-java-sdk-core</artifactId>
-            <version>3.7.1</version>
-        </dependency>
+
         <dependency>
             <groupId>com.alibaba.nls</groupId>
             <artifactId>nls-sdk-common</artifactId>
@@ -114,6 +114,11 @@
         <dependency>
             <groupId>com.alibaba.nls</groupId>
             <artifactId>nls-sdk-recognizer</artifactId>
+            <version>${sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.nls</groupId>
+            <artifactId>nls-sdk-transcriber</artifactId>
             <version>${sdk.version}</version>
         </dependency>
         <dependency>

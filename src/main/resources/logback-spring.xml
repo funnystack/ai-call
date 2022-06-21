@@ -1,74 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration debug="false">
-	<!--定义日志文件的存储地址 -->
-	<property name="LOG_HOME" value="../logs" />
+<!-- 默认为 <configuration scan="true" scanPeriod="60 seconds" debug="false"> -->
+<!-- scan 当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true -->
+<!-- scanPeriod 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟 -->
+<!-- debug 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false -->
+<configuration>
+    <contextName>ai-call</contextName>
+    <springProperty name="basePath" source="log.path" defaultValue="./logs"/>
 
-	<!-- 控制台输出 -->
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{50}:%L) - %msg%n</pattern>
-		</encoder>
-	</appender>
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
 
-	<!-- 按照每天生成日志文件 -->
-	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!--日志文件输出的文件名 -->
-			<FileNamePattern>${LOG_HOME}/jeecgboot-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
-			<!--日志文件保留天数 -->
-			<MaxHistory>30</MaxHistory>
-			<maxFileSize>10MB</maxFileSize>
-		</rollingPolicy>
-		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}:%L - %msg%n</pattern>
-		</encoder>
-	</appender>
+    <property name="file_pattern"
+              value="%date [%thread] %-5level [%logger{50}] %file:%line - %msg%n"/>
+    <property name="console_pattern"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
-	<!-- 生成 error html格式日志开始 -->
-	<appender name="HTML" class="ch.qos.logback.core.FileAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<!--设置日志级别,过滤掉info日志,只输入error日志-->
-			<level>ERROR</level>
-		</filter>
-		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="ch.qos.logback.classic.html.HTMLLayout">
-				<pattern>%p%d%msg%M%F{32}%L</pattern>
-			</layout>
-		</encoder>
-		<file>${LOG_HOME}/error-log.html</file>
-	</appender>
-	<!-- 生成 error html格式日志结束 -->
+    <!-- appender是指输出的形式或位置，name和class是两个必备属性 -->
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoder负责两件事，一是把日志信息转换成字节数组，二是把字节数组写入到输出流。 -->
+        <encoder>
+            <pattern>${console_pattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
 
-	<!-- 每天生成一个html格式的日志开始 -->
-	<appender name="FILE_HTML" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<!--日志文件输出的文件名 -->
-			<FileNamePattern>${LOG_HOME}/jeecgboot-%d{yyyy-MM-dd}.%i.html</FileNamePattern>
-			<!--日志文件保留天数 -->
-			<MaxHistory>30</MaxHistory>
-			<MaxFileSize>10MB</MaxFileSize>
-		</rollingPolicy>
-		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-			<layout class="ch.qos.logback.classic.html.HTMLLayout">
-				<pattern>%p%d%msg%M%F{32}%L</pattern>
-			</layout>
-		</encoder>
-	</appender>
-	<!-- 每天生成一个html格式的日志结束 -->
 
-	<!--myibatis log configure -->
-	<logger name="com.apache.ibatis" level="DEBUG" />
-	<logger name="java.sql.Connection" level="DEBUG" />
-	<logger name="java.sql.Statement" level="DEBUG" />
-	<logger name="java.sql.PreparedStatement" level="DEBUG" />
+    <!-- Log file debug output -->
+    <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${basePath}/debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${basePath}/%d{yyyy-MM, aux}/debug.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${file_pattern}</pattern>
+        </encoder>
+    </appender>
 
-	<!-- 日志输出级别 -->
-	<root level="INFO">
-		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
-		<appender-ref ref="HTML" />
-		<appender-ref ref="FILE_HTML" />
-	</root>
+    <!-- Log file info output -->
+    <appender name="info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${basePath}/info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${basePath}/%d{yyyy-MM, aux}/info.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${file_pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- Log file error output -->
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${basePath}/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${basePath}/%d{yyyy-MM}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${file_pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+
+    <root level="INFO">
+        <appender-ref ref="stdout"/>
+    </root>
+    <logger name="com.alibaba.nls" level="INFO" additivity="false">
+        <appender-ref ref="stdout"/>
+    </logger>
+
+    <logger name="com.funny.combo.ai.call" additivity="false">
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="info"/>
+        <appender-ref ref="error"/>
+    </logger>
 
 </configuration>
+
