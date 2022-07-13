@@ -1,2 +1,10 @@
-# aliyun-asr-tts
-阿里云asr与tts的demo
+# AI机器人智能外呼
+
+## 语音转文字ASR
++ 基于阿里云的ASR可自定义热词和语言模型
++ 每天定时刷新阿里云NlsClient，防止项目运行时token过期
+
+## 智能问答NLP
+
+
+## 文字转语音TTS
